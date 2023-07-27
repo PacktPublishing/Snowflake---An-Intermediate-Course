@@ -1,0 +1,61 @@
+// Setting up table
+
+CREATE OR REPLACE TABLE TIMETRAVEL.public.test (
+   id int,
+   first_name string,
+  last_name string,
+  email string,
+  gender string,
+  Job string,
+  Phone string);
+    
+
+COPY INTO TIMETRAVEL.public.test
+from @MANAGE_DB.external_stages.time_travel_stage
+files = ('customers.csv');
+
+SELECT * FROM TIMETRAVEL.public.test;
+
+// Use-case: Update data (by mistake)
+
+
+UPDATE TIMETRAVEL.public.test
+SET LAST_NAME = 'Miller';
+
+
+UPDATE TIMETRAVEL.public.test
+SET JOB = 'Data Engineer';
+
+SELECT * FROM TIMETRAVEL.public.test before (statement => '01aa30fc-0000-f6b5-0003-75c60001e092')
+
+
+
+// // // Bad method
+
+CREATE OR REPLACE TABLE TIMETRAVEL.public.test as
+SELECT * FROM TIMETRAVEL.public.test before (statement => '01aa30f6-0000-f65f-0003-75c60001a34a')
+
+
+SELECT * FROM TIMETRAVEL.public.test
+
+
+CREATE OR REPLACE TABLE TIMETRAVEL.public.test as
+SELECT * FROM TIMETRAVEL.public.test before (statement => '019b9eea-0500-8473-0043-4d830007307a')
+
+
+
+
+
+// // // Good method
+
+CREATE OR REPLACE TABLE TIMETRAVEL.public.test_backup as
+SELECT * FROM TIMETRAVEL.public.test before (statement => '01aa30ff-0000-f6b5-0003-75c60001e0a6')
+
+TRUNCATE TIMETRAVEL.public.test
+
+INSERT INTO TIMETRAVEL.public.test
+SELECT * FROM TIMETRAVEL.public.test_backup
+
+
+
+SELECT * FROM TIMETRAVEL.public.test 

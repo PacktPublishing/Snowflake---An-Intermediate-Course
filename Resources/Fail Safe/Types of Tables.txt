@@ -1,0 +1,74 @@
+// Permanent tables
+
+USE OUR_FIRST_DB;
+
+CREATE OR REPLACE TABLE customers (
+   id int,
+   first_name string,
+  last_name string,
+  email string,
+  gender string,
+  Job string,
+  Phone string);
+  
+SHOW TABLES;
+
+
+// Transient table
+
+CREATE OR REPLACE TRANSIENT TABLE customers (
+   id int,
+   first_name string,
+  last_name string,
+  email string,
+  gender string,
+  Job string,
+  Phone string);
+  
+SHOW TABLES;
+
+ALTER TABLE customers
+SET data_retention_time_in_days = 2;
+
+// Temporary table
+
+CREATE TEMPORARY TABLE customers (
+   id int,
+   first_name string,
+  last_name string,
+  email string,
+  gender string,
+  Job string,
+  Phone string);
+
+SHOW TABLES;
+
+
+// Transient database and schema
+
+CREATE TRANSIENT DATABASE TEST;
+CREATE TABLE TESTTABLE (TESTCOLUMN INT);
+SHOW TABLES;
+
+
+
+// View table metrics (takes a bit to appear)
+SELECT * FROM SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS
+
+
+SELECT 	ID, 
+       	TABLE_NAME, 
+		TABLE_SCHEMA,
+        TABLE_CATALOG,
+		ACTIVE_BYTES / (1024*1024*1024) AS ACTIVE_STORAGE_USED_GB,
+		TIME_TRAVEL_BYTES / (1024*1024*1024) AS TIME_TRAVEL_STORAGE_USED_GB,
+		FAILSAFE_BYTES / (1024*1024*1024) AS FAILSAFE_STORAGE_USED_GB,
+        IS_TRANSIENT,
+        DELETED,
+        TABLE_CREATED,
+        TABLE_DROPPED,
+        TABLE_ENTERED_FAILSAFE
+FROM SNOWFLAKE.ACCOUNT_USAGE.TABLE_STORAGE_METRICS
+ WHERE TABLE_CATALOG='OUR_FIRST_DB'
+--WHERE TABLE_DROPPED is not null
+ORDER BY FAILSAFE_BYTES DESC;
